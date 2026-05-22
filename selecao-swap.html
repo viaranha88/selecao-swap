@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Seleção Swap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#085041;--green-mid:#1D9E75;--purple:#534AB7;
+  --bg:#F4F3EF;--card:#FFFFFF;--border:rgba(0,0,0,0.1);
+  --text:#1A1A1A;--muted:#6B6B6B;--subtle:#A0A0A0;
+  --radius:12px;--font:'DM Sans',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.screen{display:none;width:100%;max-width:680px}
+.screen.active{display:flex}
+
+/* START */
+#startScreen{flex-direction:column;align-items:center;gap:2rem}
+.start-hero{text-align:center}
+.start-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green);color:white;font-size:12px;font-weight:500;padding:6px 14px;border-radius:100px;margin-bottom:1rem;letter-spacing:.02em}
+.start-title{font-size:clamp(28px,5vw,42px);font-weight:600;line-height:1.1;color:var(--text);margin-bottom:.75rem}
+.start-title span{color:var(--green-mid)}
+.start-sub{font-size:15px;color:var(--muted);line-height:1.6;max-width:420px;margin:0 auto}
+.start-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;width:100%;max-width:400px}
+.start-card label{font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:8px}
+.start-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-family:var(--font);background:var(--bg);color:var(--text);outline:none;transition:border-color .15s}
+.start-input:focus{border-color:var(--green-mid)}
+.btn-start{margin-top:12px;width:100%;padding:13px;background:var(--green-mid);border:none;border-radius:8px;font-size:15px;font-weight:600;color:white;cursor:pointer;font-family:var(--font);transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-start:hover{opacity:.88}.btn-start:disabled{opacity:.4;cursor:default}
+
+/* GAME */
+#gameScreen{flex-direction:row;gap:16px;align-items:flex-start}
+.field-outer{display:flex;align-items:center;flex-shrink:0}
+.field-wrap{position:relative;width:300px;height:460px;flex-shrink:0}
+.coach-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 6px}
+.coach-line{width:3px;height:70px;background:rgba(83,74,183,0.15);border-radius:2px;margin:3px 0}
+.pos-btn{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;z-index:3;border:none;background:none;padding:0}
+.pos-circle{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pos-btn:hover .pos-circle{background:rgba(255,255,255,0.26);border-color:white}
+.pos-btn.filled .pos-circle{border-color:rgba(255,255,255,0.8)}
+.pos-btn.selected .pos-circle{background:white;border-color:white;box-shadow:0 0 0 3px rgba(255,255,255,0.3)}
+.pos-btn.selected .p-initials{color:var(--green-mid)}
+.pos-name{font-size:8px;font-weight:500;color:white;text-shadow:0 1px 3px rgba(0,0,0,.7);white-space:nowrap;max-width:64px;overflow:hidden;text-overflow:ellipsis;text-align:center;line-height:1.2}
+.p-initials{font-size:11px;font-weight:600;color:white}
+.coach-btn{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border:none;background:none;padding:4px}
+.coach-circle{width:46px;height:46px;border-radius:50%;border:2px dashed rgba(83,74,183,0.5);background:rgba(83,74,183,0.06);display:flex;align-items:center;justify-content:center;transition:all .15s}
+.coach-btn:hover .coach-circle{background:rgba(83,74,183,0.14);border-color:var(--purple)}
+.coach-btn.filled .coach-circle{border-style:solid}
+.coach-btn.selected .coach-circle{background:white;border-color:var(--purple);box-shadow:0 0 0 3px rgba(83,74,183,0.18)}
+.coach-btn.selected .coach-initials{color:var(--purple)}
+.coach-lbl{font-size:9px;font-weight:500;color:var(--muted);white-space:nowrap;text-align:center;line-height:1.3}
+.coach-initials{font-size:12px;font-weight:600;color:white}
+.panel{width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+.tabs{display:flex;gap:6px}
+.tab{padding:6px 14px;border:1.5px solid var(--border);border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted);font-family:var(--font);transition:all .15s}
+.tab.active{background:var(--text);color:white;border-color:var(--text)}
+.panel-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:8px;height:460px}
+.pos-desc{font-size:11px;color:var(--muted);line-height:1.55;padding:8px 10px;background:var(--bg);border-radius:8px;flex-shrink:0}
+.search-input{width:100%;padding:7px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--font);background:var(--bg);color:var(--text);outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--green-mid)}
+.filter-btn{display:flex;align-items:center;gap:5px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;background:var(--card);color:var(--muted);font-family:var(--font);white-space:nowrap;flex-shrink:0;transition:all .15s}
+.filter-btn.active{border-color:var(--text);color:var(--text)}
+.col-list{display:flex;flex-direction:column;gap:4px;overflow-y:auto;flex:1;min-height:0}
+.col-list::-webkit-scrollbar{width:3px}.col-list::-webkit-scrollbar-track{background:transparent}.col-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.col-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:var(--card);flex-shrink:0;transition:background .1s}
+.col-item:hover:not(.disabled){background:var(--bg)}
+.col-item.disabled{opacity:.35;cursor:default;pointer-events:none}
+.avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:white;flex-shrink:0}
+.lineup-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;flex-shrink:0}
+.rm-btn{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--subtle);padding:2px;display:flex;align-items:center;transition:color .1s}
+.rm-btn:hover{color:var(--text)}
+.rank-bar-bg{height:4px;background:var(--bg);border-radius:3px;flex:1;overflow:hidden}
+.rank-bar-fill{height:100%;border-radius:3px;transition:width .3s}
+.area-tag{font-size:10px;color:var(--subtle);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn-send{width:100%;padding:11px;background:var(--green-mid);border:none;border-radius:8px;font-size:13px;font-weight:600;color:white;cursor:pointer;font-family:var(--font);flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s}
+.btn-send:hover{opacity:.88}
+.pos-header{background:var(--bg);border-radius:0 8px 8px 0;padding:8px 10px;border-left:3px solid var(--green-mid);flex-shrink:0}
+.pos-header.coach-hdr{border-left-color:var(--purple)}
+
+/* DONE */
+#doneScreen{flex-direction:column;align-items:center;gap:20px}
+.done-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn-dl{padding:11px 22px;background:var(--green-mid);border:none;border-radius:8px;font-size:13px;font-weight:600;color:white;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:7px;transition:opacity .15s}
+.btn-dl:hover{opacity:.88}
+.btn-reset{padding:11px 22px;background:transparent;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .15s}
+.btn-reset:hover{background:var(--bg)}
+.done-hint{font-size:11px;color:var(--subtle);text-align:center;max-width:320px;line-height:1.6}
+
+/* DROPDOWN */
+#areaDropdown{display:none;position:fixed;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);z-index:9999;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.1);min-width:200px}
+#areaDropdown.open{display:block}
+.dd-item{display:flex;align-items:center;gap:8px;padding:8px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text);font-family:var(--font)}
+.dd-item:hover{background:var(--bg)}
+.dd-item.active{color:var(--green-mid)}
+.dd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+@media(max-width:620px){
+  #gameScreen{flex-direction:column;align-items:center}
+  .panel{width:300px}
+  body{padding:1rem;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div id="areaDropdown">
+  <div class="dd-item" data-area=""><span style="color:var(--subtle);font-style:italic;font-weight:400;">Todas as áreas</span></div>
+</div>
+
+<!-- TELA 1: ENTRADA -->
+<div id="startScreen" class="screen active">
+  <div class="start-hero">
+    <div class="start-badge"><i class="ti ti-ball-football"></i> Seleção Swap</div>
+    <h1 class="start-title">Monte seu time<br>dos <span>sonhos</span></h1>
+    <p class="start-sub">Escale os colegas da Swap nas posições do campo e descubra quem são os mais escalados de toda a empresa.</p>
+  </div>
+  <div class="start-card">
+    <label for="nameInput">Qual é o seu nome?</label>
+    <input class="start-input" id="nameInput" placeholder="Digite seu nome..." maxlength="40" autocomplete="off" />
+    <button class="btn-start" id="btnStart" disabled>Começar <i class="ti ti-arrow-right"></i></button>
+  </div>
+</div>
+
+<!-- TELA 2: JOGO -->
+<div id="gameScreen" class="screen">
+  <div class="field-outer">
+    <div style="display:flex;align-items:center;">
+      <div class="field-wrap" id="fieldWrap">
+        <svg id="fieldSvg" style="width:300px;height:460px;border-radius:12px;display:block;" viewBox="0 0 300 460" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="coach-zone">
+        <div class="coach-line"></div>
+        <button class="coach-btn" id="coachBtn" aria-label="Escalar treinador">
+          <div class="coach-circle" id="coachCircle"><span class="coach-initials" id="coachInitials"><i class="ti ti-whistle" style="font-size:18px;color:var(--purple);"></i></span></div>
+          <span class="coach-lbl" id="coachLabel">Treinador<br><span style="font-size:8px;color:var(--subtle);">Liderança</span></span>
+        </button>
+        <div class="coach-line"></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab active" id="tab-escalar">Escalar</button>
+      <button class="tab" id="tab-ranking">Ranking</button>
+    </div>
+    <div class="panel-card" id="panelContent"></div>
+  </div>
+</div>
+
+<!-- TELA 3: ENVIADO -->
+<div id="doneScreen" class="screen">
+  <div id="doneFieldWrap" style="display:flex;align-items:center;"></div>
+  <div class="done-actions">
+    <button class="btn-dl" id="btnDownload"><i class="ti ti-external-link"></i> Abrir imagem</button>
+    <button class="btn-reset" id="btnReset">Fazer nova escalação</button>
+  </div>
+  <p class="done-hint">Clique em "Abrir imagem", depois clique com o botão direito e escolha "Salvar imagem como..."</p>
+</div>
+
+<script>
+const SHEETS_URL='https://script.google.com/a/macros/contaswap.com/s/AKfycbxQI822j8h2cjKd9Waq9VW2eouRI5hMikKbVPasYFQI4uyiGRe_dmbzRqC4BMaUaaD1/exec';
+const DESCS={coach:'Escolha aqui um líder da Swap que te inspira. Não vale escolher o seu gestor direto, combinado?',gk:'É aquela pessoa que mais defende a Swap. O nosso swapper mais promotor que defende a Swap pra todo mundo e ama seu trabalho.',zagueiro:'São aqueles que garantem a nossa segurança. É quem mais trabalha pro nosso negócio ser seguro, confiável e promissor.',lateral:'São aqueles que correm o campo inteiro. Atuam na área deles e também ajudam nas outras áreas.',meia:'São aqueles que articulam tudo, fazem a máquina funcionar direitinho. As engrenagens que fazem a Swap girar e acontecer.',atacante:'São aqueles que fazem a diferença na Swap. Pessoas com um talento e habilidades únicas que transformam nossa empresa.'};
+const POSITIONS=[{id:'gk',label:'Goleiro',x:.5,y:.88,descKey:'gk'},{id:'lb',label:'Lateral',x:.12,y:.70,descKey:'lateral'},{id:'cb1',label:'Zagueiro',x:.38,y:.70,descKey:'zagueiro'},{id:'cb2',label:'Zagueiro',x:.62,y:.70,descKey:'zagueiro'},{id:'rb',label:'Lateral',x:.88,y:.70,descKey:'lateral'},{id:'mc1',label:'Meia',x:.2,y:.48,descKey:'meia'},{id:'mc2',label:'Meia',x:.5,y:.48,descKey:'meia'},{id:'mc3',label:'Meia',x:.8,y:.48,descKey:'meia'},{id:'at1',label:'Atacante',x:.18,y:.22,descKey:'atacante'},{id:'at2',label:'Atacante',x:.5,y:.22,descKey:'atacante'},{id:'at3',label:'Atacante',x:.82,y:.22,descKey:'atacante'}];
+const COLLEAGUES=[{"name":"Douglas","initials":"DO","color":"#D85A30","area":"CEO"},{"name":"Ury","initials":"UR","color":"#791F1F","area":"RECEITAS"},{"name":"Gissandro","initials":"GI","color":"#1D9E75","area":"BANKING"},{"name":"Gustavo Dias","initials":"GD","color":"#378ADD","area":"CONTROLADORIA E FISCAL"},{"name":"Juliane Aquino","initials":"JA","color":"#1D9E75","area":"BANKING"},{"name":"Bruno Bunya","initials":"BB","color":"#534AB7","area":"CARTÕES"},{"name":"Livia","initials":"LI","color":"#534AB7","area":"CARTÕES"},{"name":"Vitor","initials":"VI","color":"#534AB7","area":"CARTÕES"},{"name":"Elizeu Costa","initials":"EC","color":"#534AB7","area":"CARTÕES"},{"name":"Henrique Rangel","initials":"HR","color":"#BA7517","area":"DADOS"},{"name":"Renan Trindade","initials":"RT","color":"#185FA5","area":"INTERPRISE"},{"name":"Gabriel Santi","initials":"GS","color":"#993C1D","area":"INTERFACES"},{"name":"Gabriela Ferreira","initials":"GF","color":"#3B6D11","area":"GESTÃO RISCOS E CONTROLES"},{"name":"Izabella Celene","initials":"IC","color":"#5DCAA5","area":"TESOURARIA"},{"name":"Vanessa Diana","initials":"VD","color":"#1D9E75","area":"BANKING"},{"name":"Rafael Roz","initials":"RR","color":"#BA7517","area":"DADOS"},{"name":"Lucas Novaes","initials":"LN","color":"#F0997B","area":"RISCO"},{"name":"Mariana Corgozinho","initials":"MC","color":"#5DCAA5","area":"TESOURARIA"},{"name":"Jonas","initials":"JO","color":"#633806","area":"PORTFOLIO DE SOLUCOES"},{"name":"Rodrigo","initials":"RO","color":"#27500A","area":"PLANEJAMENTO FINANCEIRO"},{"name":"Vanessa Delpy","initials":"VD","color":"#712B13","area":"MARKETING"},{"name":"Achiles Gomes","initials":"AG","color":"#1D9E75","area":"BANKING"},{"name":"Anderson Feitoza","initials":"AF","color":"#1D9E75","area":"BANKING"},{"name":"Luis Provenzano","initials":"LP","color":"#85B7EB","area":"SRE"},{"name":"Mateus Costa","initials":"MC","color":"#1D9E75","area":"BANKING"},{"name":"Melise Seabra","initials":"MS","color":"#F0997B","area":"RISCO"},{"name":"Rafael Anizio","initials":"RA","color":"#BA7517","area":"DADOS"},{"name":"Stella Bastos","initials":"SB","color":"#85B7EB","area":"SRE"},{"name":"Zelia Cardoso","initials":"ZC","color":"#F0997B","area":"RISCO"},{"name":"Danilo Dias","initials":"DD","color":"#534AB7","area":"CARTÕES"},{"name":"Vivia Lima","initials":"VL","color":"#F0997B","area":"RISCO"},{"name":"Camila Silva","initials":"CS","color":"#444441","area":"NOC"},{"name":"Alexandre Winandy","initials":"AW","color":"#0C447C","area":"ORGANIZAÇÕES"},{"name":"Thamires Charamello","initials":"TC","color":"#ED93B1","area":"SEGURANÇA DA INFORMAÇÃO"},{"name":"Joao Ferreira","initials":"JF","color":"#534AB7","area":"CARTÕES"},{"name":"Ully Boccato","initials":"UB","color":"#0F6E56","area":"INTELIGENCIA COMERCIAL"},{"name":"Thiago Lima","initials":"TL","color":"#27500A","area":"PLANEJAMENTO FINANCEIRO"},{"name":"Vida Cardoso","initials":"VC","color":"#D4537E","area":"COMPLIANCE"},{"name":"Jonathan Salcedo","initials":"JS","color":"#534AB7","area":"CARTÕES"},{"name":"Bruna Amorim","initials":"BA","color":"#378ADD","area":"CONTROLADORIA E FISCAL"},{"name":"Samuel Gomes","initials":"SG","color":"#7F77DD","area":"REMUNERAÇÃO E FOLHA"},{"name":"Sidney Aguiar","initials":"SA","color":"#7F77DD","area":"REMUNERAÇÃO E FOLHA"},{"name":"Raissa Braga","initials":"RB","color":"#D4537E","area":"COMPLIANCE"},{"name":"Gabriel Garcia","initials":"GG","color":"#185FA5","area":"INTERPRISE"},{"name":"Stephanie Wolf","initials":"SW","color":"#185FA5","area":"INTERPRISE"},{"name":"Adriana Camargo","initials":"AC","color":"#5DCAA5","area":"RELAÇÕES GOVERNAMENTAIS"},{"name":"Pietra Oliveira","initials":"PO","color":"#993C1D","area":"INTERFACES"},{"name":"Cicely Hung","initials":"CH","color":"#378ADD","area":"CONTROLADORIA E FISCAL"},{"name":"Laura Garbim","initials":"LG","color":"#3B6D11","area":"GESTÃO RISCOS E CONTROLES"},{"name":"Joao Lima","initials":"JL","color":"#1D9E75","area":"BANKING"},{"name":"Felipe Tadei","initials":"FT","color":"#1D9E75","area":"BANKING"},{"name":"Thiago Oliveira","initials":"TO","color":"#F0997B","area":"RISCO"},{"name":"Guilherme Alvarenga","initials":"GA","color":"#72243E","area":"NEW BUSINESS"},{"name":"Celia Barros","initials":"CB","color":"#97C459","area":"TALENTOS"},{"name":"Luan","initials":"LU","color":"#1D9E75","area":"BANKING"},{"name":"Kleber Shimabuku","initials":"KS","color":"#1D9E75","area":"BANKING"},{"name":"Thales Machado","initials":"TM","color":"#185FA5","area":"INTERPRISE"},{"name":"Rodrigo Paula","initials":"RP","color":"#534AB7","area":"CARTÕES"},{"name":"Pedro Machado","initials":"PM","color":"#534AB7","area":"CARTÕES"},{"name":"Debora Alice","initials":"DA","color":"#378ADD","area":"CONTROLADORIA E FISCAL"},{"name":"Gabriela Tognozzi","initials":"GT","color":"#712B13","area":"MARKETING"},{"name":"Giovanna Linard","initials":"GL","color":"#3C3489","area":"JURIDICO"},{"name":"Alef Machado","initials":"AM","color":"#1D9E75","area":"BANKING"},{"name":"Raiza Franco","initials":"RF","color":"#534AB7","area":"CARTÕES"},{"name":"Monica Taveira","initials":"MT","color":"#378ADD","area":"CONTROLADORIA E FISCAL"},{"name":"Karoline Bernardino","initials":"KB","color":"#3C3489","area":"JURIDICO"},{"name":"Gabriela Santana","initials":"GS","color":"#97C459","area":"TALENTOS"},{"name":"Eduardo Klosowski","initials":"EK","color":"#1D9E75","area":"BANKING"},{"name":"Fabio Macedo","initials":"FM","color":"#F0997B","area":"RISCO"},{"name":"Weber Marcal","initials":"WM","color":"#378ADD","area":"CONTROLADORIA E FISCAL"},{"name":"Guilherme Watanabe","initials":"GW","color":"#534AB7","area":"CARTÕES"},{"name":"Lucas Varnieri","initials":"LV","color":"#72243E","area":"NEW BUSINESS"},{"name":"Matheus Archanjo","initials":"MA","color":"#ED93B1","area":"SEGURANÇA DA INFORMAÇÃO"},{"name":"Carolina Lemos","initials":"CL","color":"#A32D2D","area":"GROWTH CARE"},{"name":"Julianna Doti","initials":"JD","color":"#EF9F27","area":"SUPORTE"},{"name":"Lara Biancardi","initials":"LB","color":"#F0997B","area":"RISCO"},{"name":"Willian Ribeiro","initials":"WR","color":"#444441","area":"NOC"},{"name":"Felipe Leal","initials":"FL","color":"#993C1D","area":"INTERFACES"},{"name":"Jessica Alfradique","initials":"JA","color":"#185FA5","area":"INTERPRISE"},{"name":"Aline Moretto","initials":"AM","color":"#D4537E","area":"COMPLIANCE"},{"name":"Matheus Costa","initials":"MC","color":"#1D9E75","area":"BANKING"},{"name":"Tulio Cruz","initials":"TC","color":"#993C1D","area":"INTERFACES"},{"name":"Vinicius Aranha","initials":"VA","color":"#0C447C","area":"ORGANIZAÇÕES"},{"name":"Mauricio Conceicao","initials":"MC","color":"#1D9E75","area":"BANKING"},{"name":"Vitor Batista","initials":"VB","color":"#1D9E75","area":"BANKING"},{"name":"Beatriz Silva","initials":"BS","color":"#F0997B","area":"RISCO"},{"name":"Lucas Melo","initials":"LM","color":"#1D9E75","area":"BANKING"},{"name":"Dilermando Souza","initials":"DS","color":"#1D9E75","area":"BANKING"},{"name":"Caique Bispo","initials":"CB","color":"#F0997B","area":"RISCO"},{"name":"Stiphanie Silva","initials":"SS","color":"#BA7517","area":"DADOS"},{"name":"Alan Sousa","initials":"AS","color":"#534AB7","area":"CARTÕES"},{"name":"Weslley","initials":"WE","color":"#85B7EB","area":"SRE"},{"name":"Flavia Ramos","initials":"FR","color":"#EF9F27","area":"SUPORTE"},{"name":"Alana Nogueira","initials":"AN","color":"#185FA5","area":"INTERPRISE"},{"name":"Nicoli Frasson","initials":"NF","color":"#27500A","area":"PLANEJAMENTO FINANCEIRO"},{"name":"Leonardo Menezes","initials":"LM","color":"#F0997B","area":"RISCO"},{"name":"Gabriel Zilio","initials":"GZ","color":"#F0997B","area":"RISCO"},{"name":"Vinicius Moreira","initials":"VM","color":"#534AB7","area":"CARTÕES"},{"name":"Isabelly Bezerra","initials":"IB","color":"#185FA5","area":"INTERPRISE"},{"name":"Ana Fontes","initials":"AF","color":"#F0997B","area":"RISCO"},{"name":"Thais Moraes","initials":"TM","color":"#378ADD","area":"CONTROLADORIA E FISCAL"},{"name":"Lucas Alves","initials":"LA","color":"#534AB7","area":"CARTÕES"},{"name":"Tatiana Pucinelli","initials":"TP","color":"#639922","area":"GESTÃO RESILIENCIA CORP"},{"name":"Luisa Martins","initials":"LM","color":"#A32D2D","area":"GROWTH CARE"},{"name":"Luiz Lauxen","initials":"LL","color":"#185FA5","area":"INTERPRISE"},{"name":"Andre Rabelo","initials":"AR","color":"#EF9F27","area":"SUPORTE"},{"name":"Jefferson Kalffman","initials":"JK","color":"#534AB7","area":"CARTÕES"},{"name":"Rogerio Cid","initials":"RC","color":"#5DCAA5","area":"TESOURARIA"},{"name":"Victor Silva","initials":"VS","color":"#5DCAA5","area":"TESOURARIA"},{"name":"Oruam Albuquerque","initials":"OA","color":"#A32D2D","area":"GROWTH CARE"},{"name":"Leonardo Teixeira","initials":"LT","color":"#72243E","area":"NEW BUSINESS"},{"name":"Oslaine Fernandes","initials":"OF","color":"#378ADD","area":"CONTROLADORIA E FISCAL"},{"name":"Patrick Ferraro","initials":"PF","color":"#ED93B1","area":"SEGURANÇA DA INFORMAÇÃO"},{"name":"Jose Neto","initials":"JN","color":"#1D9E75","area":"BANKING"},{"name":"Regis Graf","initials":"RG","color":"#993C1D","area":"INTERFACES"},{"name":"Raylson Marques","initials":"RM","color":"#1D9E75","area":"BANKING"},{"name":"Marcos Prata","initials":"MP","color":"#F0997B","area":"RISCO"},{"name":"Luan Sa","initials":"LS","color":"#BA7517","area":"DADOS"},{"name":"Guilherme Canato","initials":"GC","color":"#444441","area":"NOC"},{"name":"Mateus Escorcio","initials":"ME","color":"#72243E","area":"NEW BUSINESS"},{"name":"Julia Menezes","initials":"JM","color":"#A32D2D","area":"GROWTH CARE"},{"name":"Christie Santos","initials":"CS","color":"#F0997B","area":"RISCO"},{"name":"Nathalia Dalla","initials":"ND","color":"#F0997B","area":"RISCO"},{"name":"Vinicius Celms","initials":"VC","color":"#85B7EB","area":"SRE"},{"name":"Pedro Beaumord","initials":"PB","color":"#F0997B","area":"RISCO"},{"name":"Julio Bissoli","initials":"JB","color":"#993C1D","area":"INTERFACES"},{"name":"Pedro Costa","initials":"PC","color":"#993C1D","area":"INTERFACES"},{"name":"Lucas Gimenez","initials":"LG","color":"#85B7EB","area":"SRE"},{"name":"Carlyle Botasso","initials":"CB","color":"#1D9E75","area":"BANKING"},{"name":"Amanda Safady","initials":"AS","color":"#534AB7","area":"CARTÕES"},{"name":"Leticia Orvalho","initials":"LO","color":"#378ADD","area":"CONTROLADORIA E FISCAL"},{"name":"Victoria Castro","initials":"VC","color":"#BA7517","area":"DADOS"},{"name":"Gabriel Maciel","initials":"GM","color":"#3C3489","area":"JURIDICO"},{"name":"Stive Tormes","initials":"ST","color":"#993C1D","area":"INTERFACES"},{"name":"Laura Ozela","initials":"LO","color":"#D4537E","area":"COMPLIANCE"},{"name":"Luiz Barbosa","initials":"LB","color":"#85B7EB","area":"SRE"},{"name":"Wilson Salomao","initials":"WS","color":"#F0997B","area":"RISCO"},{"name":"Robson Oliveira","initials":"RO","color":"#1D9E75","area":"BANKING"},{"name":"Vinicius Pimentel","initials":"VP","color":"#F0997B","area":"RISCO"},{"name":"Marina Oliveira","initials":"MO","color":"#ED93B1","area":"SEGURANÇA DA INFORMAÇÃO"},{"name":"Sara Araujo","initials":"SA","color":"#444441","area":"NOC"},{"name":"Leticia Pires","initials":"LP","color":"#D4537E","area":"COMPLIANCE"},{"name":"Yan Azevedo","initials":"YA","color":"#A32D2D","area":"GROWTH CARE"},{"name":"Giulia Marques","initials":"GM","color":"#EF9F27","area":"SUPORTE"},{"name":"Felicio Almeida","initials":"FA","color":"#85B7EB","area":"SRE"},{"name":"Renan Mendes","initials":"RM","color":"#993C1D","area":"INTERFACES"},{"name":"Igor Rufino","initials":"IR","color":"#85B7EB","area":"SRE"},{"name":"Fernanda Ferreira","initials":"FF","color":"#85B7EB","area":"SRE"},{"name":"Desiree Machado","initials":"DM","color":"#97C459","area":"TALENTOS"},{"name":"Camila Carvalho","initials":"CC","color":"#D4537E","area":"COMPLIANCE"},{"name":"Brenda Siqueira","initials":"BS","color":"#D4537E","area":"COMPLIANCE"},{"name":"Rafael Andrade","initials":"RA","color":"#D4537E","area":"COMPLIANCE"},{"name":"Rafael Piacenti","initials":"RP","color":"#993C1D","area":"INTERFACES"},{"name":"Amanda Vigario","initials":"AV","color":"#3C3489","area":"JURIDICO"},{"name":"Pedro Ramalho","initials":"PR","color":"#534AB7","area":"CARTÕES"},{"name":"Luccas Brandao","initials":"LB","color":"#534AB7","area":"CARTÕES"},{"name":"Felipe Maekawa","initials":"FM","color":"#72243E","area":"NEW BUSINESS"},{"name":"Pedro Cotta","initials":"PC","color":"#534AB7","area":"CARTÕES"},{"name":"Rodrigo Serra","initials":"RS","color":"#993C1D","area":"INTERFACES"},{"name":"Wesley Santos","initials":"WS","color":"#BA7517","area":"DADOS"},{"name":"Aurelio Dias","initials":"AD","color":"#EF9F27","area":"SUPORTE"},{"name":"Rodrigo Rocha","initials":"RR","color":"#EF9F27","area":"SUPORTE"},{"name":"Marcos Telles","initials":"MT","color":"#A32D2D","area":"GROWTH CARE"},{"name":"Bruno Conti","initials":"BC","color":"#993C1D","area":"INTERFACES"},{"name":"Luma Gomes","initials":"LG","color":"#185FA5","area":"INTERPRISE"},{"name":"Andre Martins","initials":"AM","color":"#F0997B","area":"RISCO"},{"name":"Luis Ferreira","initials":"LF","color":"#72243E","area":"NEW BUSINESS"},{"name":"Priscila Alves","initials":"PA","color":"#72243E","area":"NEW BUSINESS"},{"name":"Andre Matias","initials":"AM","color":"#534AB7","area":"CARTÕES"},{"name":"Mariana Cardoso","initials":"MC","color":"#534AB7","area":"CARTÕES"},{"name":"Carlisson Miller","initials":"CM","color":"#F0997B","area":"RISCO"},{"name":"Stefany Carvalho","initials":"SC","color":"#993C1D","area":"INTERFACES"},{"name":"Andrey Cunha","initials":"AC","color":"#993C1D","area":"INTERFACES"},{"name":"Amanda Sena","initials":"AS","color":"#993C1D","area":"INTERFACES"},{"name":"Lucas Benvenuti","initials":"LB","color":"#F0997B","area":"RISCO"},{"name":"Rafaella Alvares","initials":"RA","color":"#BA7517","area":"DADOS"},{"name":"Karen Magalhaes","initials":"KM","color":"#712B13","area":"MARKETING"},{"name":"Gabriel Hessel","initials":"GH","color":"#27500A","area":"PLANEJAMENTO FINANCEIRO"},{"name":"Caroliny Couto","initials":"CC","color":"#EF9F27","area":"SUPORTE"},{"name":"Leandro Damas","initials":"LD","color":"#EF9F27","area":"SUPORTE"},{"name":"Victor Alves","initials":"VA","color":"#EF9F27","area":"SUPORTE"},{"name":"Leticia Siqueira","initials":"LS","color":"#EF9F27","area":"SUPORTE"},{"name":"Ana Boldt","initials":"AB","color":"#F0997B","area":"RISCO"},{"name":"Rodrigo Franca","initials":"RF","color":"#A32D2D","area":"GROWTH CARE"},{"name":"Thais Quirino","initials":"TQ","color":"#185FA5","area":"INTERPRISE"},{"name":"Alicio Silva","initials":"AS","color":"#85B7EB","area":"SRE"},{"name":"Laura Lima","initials":"LL","color":"#D4537E","area":"COMPLIANCE"},{"name":"Emanuel Bezerra","initials":"EB","color":"#185FA5","area":"INTERPRISE"},{"name":"Hebert Viana","initials":"HV","color":"#185FA5","area":"INTERPRISE"},{"name":"Luiz Toniolo","initials":"LT","color":"#85B7EB","area":"SRE"},{"name":"Camila Nascimento","initials":"CN","color":"#378ADD","area":"CONTROLADORIA E FISCAL"},{"name":"Vinicius Vargas","initials":"VV","color":"#D4537E","area":"COMPLIANCE"}].sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'));
+
+const AREAS=[...new Set(COLLEAGUES.map(c=>c.area))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+const AREA_COLOR=Object.fromEntries(COLLEAGUES.map(c=>[c.area,c.color]));
+const dd=document.getElementById('areaDropdown');
+dd.querySelector('[data-area=""]').addEventListener('mousedown',(e)=>{e.preventDefault();selectArea(null);});
+AREAS.forEach(a=>{const d=document.createElement('div');d.className='dd-item';d.dataset.area=a;d.innerHTML=`<div class="dd-dot" style="background:${AREA_COLOR[a]};"></div><span>${a}</span>`;d.addEventListener('mousedown',(e)=>{e.preventDefault();selectArea(a);});dd.appendChild(d);});
+
+let lineup={},coach=null,selected=null,tab='escalar',search='',filterArea=null,userName='',globalRanking=null;
+const SVG_W=300,SVG_H=460;
+
+const nameInput=document.getElementById('nameInput');
+nameInput.addEventListener('input',()=>{document.getElementById('btnStart').disabled=nameInput.value.trim().length<2;});
+nameInput.addEventListener('keydown',(e)=>{if(e.key==='Enter'&&nameInput.value.trim().length>=2)startGame();});
+document.getElementById('btnStart').addEventListener('click',startGame);
+document.getElementById('coachBtn').addEventListener('mousedown',(e)=>{e.preventDefault();selectCoach();});
+document.getElementById('tab-escalar').addEventListener('click',()=>setTab('escalar'));
+document.getElementById('tab-ranking').addEventListener('click',()=>setTab('ranking'));
+document.getElementById('btnDownload').addEventListener('click',openImage);
+document.getElementById('btnReset').addEventListener('click',resetGame);
+document.addEventListener('pointerdown',(e)=>{if(!dd.contains(e.target))closeDropdown();});
+
+function startGame(){userName=nameInput.value.trim();showScreen('gameScreen');drawField();setTimeout(()=>{renderButtons();renderPanel();},50);}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+function fieldLines(){return `<rect width="${SVG_W}" height="${SVG_H}" fill="#085041" rx="10"/><rect x="16" y="16" width="${SVG_W-32}" height="${SVG_H-32}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/><line x1="16" y1="${SVG_H/2}" x2="${SVG_W-16}" y2="${SVG_H/2}" stroke="rgba(255,255,255,0.18)" stroke-width="1"/><circle cx="${SVG_W/2}" cy="${SVG_H/2}" r="38" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/><circle cx="${SVG_W/2}" cy="${SVG_H/2}" r="3" fill="rgba(255,255,255,0.28)"/><rect x="${SVG_W/2-70}" y="16" width="140" height="50" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/><rect x="${SVG_W/2-40}" y="16" width="80" height="24" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/><rect x="${SVG_W/2-70}" y="${SVG_H-66}" width="140" height="50" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/><rect x="${SVG_W/2-40}" y="${SVG_H-42}" width="80" height="26" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/><circle cx="${SVG_W/2}" cy="66" r="3" fill="rgba(255,255,255,0.28)"/><circle cx="${SVG_W/2}" cy="${SVG_H-66}" r="3" fill="rgba(255,255,255,0.28)"/>`;}
+function drawField(){document.getElementById('fieldSvg').innerHTML=fieldLines();}
+function updateCoachLabel(){const lbl=document.getElementById('coachLabel');if(!lbl)return;lbl.innerHTML=coach?`${coach.name}<br><span style="font-size:8px;color:var(--subtle);">Treinador</span>`:`Treinador<br><span style="font-size:8px;color:var(--subtle);">Liderança</span>`;}
+function isComplete(){return POSITIONS.every(p=>lineup[p.id])&&coach!==null;}
+
+function renderButtons(){
+  document.querySelectorAll('.pos-btn').forEach(e=>e.remove());
+  const wrap=document.getElementById('fieldWrap');
+  POSITIONS.forEach(pos=>{
+    const col=lineup[pos.id];
+    const btn=document.createElement('button');
+    btn.className='pos-btn'+(col?' filled':'')+(selected===pos.id?' selected':'');
+    btn.style.left=(pos.x*SVG_W)+'px';btn.style.top=(pos.y*SVG_H)+'px';
+    const circle=document.createElement('div');circle.className='pos-circle';
+    if(col)circle.style.background=col.color;
+    const span=document.createElement('span');span.className='p-initials';
+    if(col)span.textContent=col.initials;
+    else span.innerHTML=`<i class="ti ti-plus" style="font-size:14px;color:rgba(255,255,255,0.6);"></i>`;
+    circle.appendChild(span);btn.appendChild(circle);
+    const lbl=document.createElement('span');lbl.className='pos-name';lbl.textContent=col?col.name:pos.label;
+    if(!col){lbl.style.opacity='0.8';}btn.appendChild(lbl);
+    btn.addEventListener('mousedown',(e)=>{e.preventDefault();selectPos(pos.id);});
+    wrap.appendChild(btn);
+  });
+  const cb=document.getElementById('coachBtn');cb.className='coach-btn'+(coach?' filled':'')+(selected==='coach'?' selected':'');
+  const cc=document.getElementById('coachCircle'),ci=document.getElementById('coachInitials');
+  if(coach){cc.style.background=coach.color;cc.style.borderColor=coach.color;ci.textContent=coach.initials;ci.className='coach-initials';}
+  else{cc.style.background='';cc.style.borderColor='';ci.innerHTML=`<i class="ti ti-whistle" style="font-size:18px;color:var(--purple);"></i>`;ci.className='coach-initials';}
+  updateCoachLabel();
+}
+
+function selectPos(id){selected=selected===id?null:id;search='';filterArea=null;closeDropdown();renderButtons();renderPanel();}
+function selectCoach(){selected=selected==='coach'?null:'coach';search='';filterArea=null;closeDropdown();renderButtons();renderPanel();}
+function handleAssign(name){const col=COLLEAGUES.find(c=>c.name===name);if(!col)return;if(selected==='coach')coach=col;else if(selected)lineup[selected]=col;selected=null;search='';filterArea=null;closeDropdown();renderButtons();renderPanel();}
+function handleRemove(id){if(id==='coach')coach=null;else delete lineup[id];renderButtons();renderPanel();}
+function setTab(t){tab=t;document.getElementById('tab-escalar').className='tab'+(t==='escalar'?' active':'');document.getElementById('tab-ranking').className='tab'+(t==='ranking'?' active':'');if(t==='ranking')fetchGlobalRanking();else renderPanel();}
+function openDropdown(btn){const r=btn.getBoundingClientRect();dd.style.top=(r.bottom+4)+'px';dd.style.left=Math.max(4,r.right-200)+'px';dd.classList.add('open');dd.querySelectorAll('.dd-item').forEach(el=>{const a=el.dataset.area;el.classList.toggle('active',a?a===filterArea:!filterArea);});}
+function closeDropdown(){dd.classList.remove('open');}
+function selectArea(area){filterArea=(area&&area===filterArea)?null:area;closeDropdown();rebuildColList();}
+
+function rebuildColList(){
+  const list=document.getElementById('colList');if(!list||!selected)return;
+  const currentCol=selected==='coach'?coach:lineup[selected];
+  const pickedNames=new Set([...Object.values(lineup).filter(Boolean).map(c=>c.name),coach?coach.name:null].filter(Boolean));
+  const q=search.toLowerCase();
+  const filtered=COLLEAGUES.filter(c=>{if(filterArea&&c.area!==filterArea)return false;if(q&&!c.name.toLowerCase().includes(q))return false;return true;});
+  list.innerHTML='';
+  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:1rem;color:var(--subtle);font-size:12px;">Nenhum resultado</div>';return;}
+  filtered.forEach(c=>{
+    const already=pickedNames.has(c.name)&&c.name!==(currentCol?currentCol.name:null);
+    const item=document.createElement('div');item.className='col-item'+(already?' disabled':'');
+    item.innerHTML=`<div class="avatar" style="background:${c.color};">${c.initials}</div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.name}</div><div class="area-tag">${c.area}</div></div>${already?'<span style="font-size:10px;color:var(--subtle);">escalado</span>':''}`;
+    if(!already)item.addEventListener('mousedown',(e)=>{e.preventDefault();handleAssign(c.name);});
+    list.appendChild(item);
+  });
+  const fb=document.getElementById('btnFilter');
+  if(fb){fb.className='filter-btn'+(filterArea?' active':'');fb.innerHTML=`<i class="ti ti-filter" style="font-size:13px;"></i>${filterArea?`<span style="width:7px;height:7px;border-radius:50%;background:${AREA_COLOR[filterArea]};display:inline-block;flex-shrink:0;"></span>`:`<span style="font-size:11px;font-weight:500;">Área</span>`}`;}
+}
+
+async function saveToSheets(){
+  const payload={autor:userName,gk:lineup.gk?.name||'',lb:lineup.lb?.name||'',cb1:lineup.cb1?.name||'',cb2:lineup.cb2?.name||'',rb:lineup.rb?.name||'',mc1:lineup.mc1?.name||'',mc2:lineup.mc2?.name||'',mc3:lineup.mc3?.name||'',at1:lineup.at1?.name||'',at2:lineup.at2?.name||'',at3:lineup.at3?.name||'',coach:coach?.name||''};
+  try{await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});}catch(e){console.warn('Sheets error:',e);}
+}
+
+async function fetchGlobalRanking(){
+  const panel=document.getElementById('panelContent');
+  panel.innerHTML=`<div style="text-align:center;padding:2rem 1rem;color:var(--subtle);font-size:13px;">Carregando ranking global...</div>`;
+  try{const res=await fetch(SHEETS_URL+'?action=ranking',{mode:'cors'});const data=await res.json();globalRanking=data;renderPanel();}
+  catch(e){globalRanking=null;renderPanel();}
+}
+
+function sendLineup(){if(!isComplete())return;saveToSheets();buildDoneScreen();}
+
+function openImage(){
+  const scale=2,W=SVG_W*scale,H=SVG_H*scale;
+  const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');ctx.scale(scale,scale);
+  ctx.beginPath();rrPath(ctx,0,0,SVG_W,SVG_H,10);ctx.fillStyle='#085041';ctx.fill();ctx.save();ctx.clip();
+  ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=1.5;ctx.strokeRect(16,16,SVG_W-32,SVG_H-32);
+  ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(16,SVG_H/2);ctx.lineTo(SVG_W-16,SVG_H/2);ctx.stroke();
+  ctx.beginPath();ctx.arc(SVG_W/2,SVG_H/2,38,0,Math.PI*2);ctx.stroke();
+  ctx.strokeRect(SVG_W/2-70,16,140,50);ctx.strokeRect(SVG_W/2-40,16,80,24);
+  ctx.strokeRect(SVG_W/2-70,SVG_H-66,140,50);ctx.strokeRect(SVG_W/2-40,SVG_H-42,80,26);
+  ctx.fillStyle='rgba(255,255,255,0.28)';[SVG_H/2,66,SVG_H-66].forEach(cy=>{ctx.beginPath();ctx.arc(SVG_W/2,cy,3,0,Math.PI*2);ctx.fill();});
+  ctx.fillStyle='white';ctx.font='500 10px DM Sans,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(0,0,0,0.7)';ctx.shadowBlur=4;
+  ctx.fillText(`Seleção de Swappers de ${userName}`,SVG_W/2,27,SVG_W-32);ctx.shadowBlur=0;
+  POSITIONS.forEach(pos=>{const col=lineup[pos.id];if(!col)return;const px=pos.x*SVG_W,py=pos.y*SVG_H;ctx.beginPath();ctx.arc(px,py,20,0,Math.PI*2);ctx.fillStyle=col.color;ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='white';ctx.font='600 11px DM Sans,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(col.initials,px,py);ctx.font='500 8px DM Sans,sans-serif';ctx.textBaseline='top';ctx.shadowColor='rgba(0,0,0,0.7)';ctx.shadowBlur=3;ctx.fillText(col.name.length>9?col.name.slice(0,9)+'…':col.name,px,py+22,62);ctx.shadowBlur=0;});
+  ctx.restore();
+  const dataUrl=canvas.toDataURL('image/jpeg',0.92);
+  const w=window.open('');if(w){w.document.write(`<!DOCTYPE html><html><head><title>Seleção Swap — ${userName}</title><style>body{margin:0;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:12px;font-family:sans-serif}img{border-radius:10px;max-width:90vw}p{color:#aaa;font-size:13px}</style></head><body><img src="${dataUrl}"><p>Clique com o botão direito → "Salvar imagem como..."</p></body></html>`);w.document.close();}
+}
+
+function rrPath(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+function buildDoneScreen(){
+  const done=document.getElementById('doneFieldWrap');done.innerHTML='';
+  const fw=document.createElement('div');fw.style.cssText='position:relative;width:300px;height:460px;flex-shrink:0;';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox',`0 0 ${SVG_W} ${SVG_H}`);svg.style.cssText='width:300px;height:460px;border-radius:12px;display:block;';
+  svg.innerHTML=fieldLines()+`<text x="${SVG_W/2}" y="27" text-anchor="middle" dominant-baseline="middle" font-size="9.5" font-weight="500" fill="white" font-family="DM Sans,sans-serif">${esc(`Seleção de Swappers de ${userName}`)}</text>`;
+  fw.appendChild(svg);
+  POSITIONS.forEach(pos=>{const col=lineup[pos.id];if(!col)return;const b=document.createElement('div');b.style.cssText=`position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:1px;left:${pos.x*SVG_W}px;top:${pos.y*SVG_H}px;`;const c=document.createElement('div');c.style.cssText=`width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,0.8);background:${col.color};display:flex;align-items:center;justify-content:center;`;const s=document.createElement('span');s.style.cssText='font-size:11px;font-weight:600;color:white;';s.textContent=col.initials;c.appendChild(s);b.appendChild(c);const l=document.createElement('span');l.style.cssText='font-size:8px;font-weight:500;color:white;text-shadow:0 1px 3px rgba(0,0,0,.7);white-space:nowrap;max-width:64px;overflow:hidden;text-overflow:ellipsis;text-align:center;';l.textContent=col.name;b.appendChild(l);fw.appendChild(b);});
+  const cz=document.createElement('div');cz.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 6px;';
+  const l1=document.createElement('div');l1.style.cssText='width:3px;height:70px;background:rgba(83,74,183,0.15);border-radius:2px;margin:3px 0;';
+  const cd=document.createElement('div');cd.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;';
+  const cc=document.createElement('div');cc.style.cssText=`width:46px;height:46px;border-radius:50%;background:${coach.color};border:2px solid ${coach.color};display:flex;align-items:center;justify-content:center;`;
+  const ci=document.createElement('span');ci.style.cssText='font-size:12px;font-weight:600;color:white;';ci.textContent=coach.initials;cc.appendChild(ci);cd.appendChild(cc);
+  const cl=document.createElement('span');cl.style.cssText='font-size:9px;font-weight:500;color:var(--muted);white-space:nowrap;text-align:center;line-height:1.3;';cl.innerHTML=`${coach.name}<br><span style="font-size:8px;color:var(--subtle);">Treinador</span>`;cd.appendChild(cl);
+  const l2=document.createElement('div');l2.style.cssText='width:3px;height:70px;background:rgba(83,74,183,0.15);border-radius:2px;margin:3px 0;';
+  cz.appendChild(l1);cz.appendChild(cd);cz.appendChild(l2);done.appendChild(fw);done.appendChild(cz);showScreen('doneScreen');
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function resetGame(){lineup={};coach=null;selected=null;tab='escalar';search='';filterArea=null;globalRanking=null;nameInput.value='';document.getElementById('btnStart').disabled=true;showScreen('startScreen');}
+
+function renderPanel(){
+  const panel=document.getElementById('panelContent');
+  if(tab==='ranking'){
+    let sorted=[];
+    if(globalRanking&&globalRanking.length>0){sorted=globalRanking.filter(r=>r.count>0);}
+    else{const counts={};COLLEAGUES.forEach(c=>counts[c.name]=0);Object.values(lineup).forEach(c=>{if(c)counts[c.name]++;});if(coach)counts[coach.name]=(counts[coach.name]||0)+1;sorted=Object.entries(counts).filter(([,v])=>v>0).map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count);}
+    if(!sorted.length){panel.innerHTML=`<div style="text-align:center;padding:2rem 1rem;color:var(--subtle);font-size:13px;line-height:1.6;">${globalRanking!==null?'Ainda ninguém foi escalado.':'Escale colegas para ver o ranking'}</div>`;return;}
+    const max=sorted[0].count;const isGlobal=globalRanking&&globalRanking.length>0;
+    panel.innerHTML=`<div style="font-size:12px;color:var(--muted);font-weight:500;margin-bottom:4px;">Mais escalados ${isGlobal?'<span style="font-size:10px;font-weight:400;color:var(--green-mid);">● global</span>':''}</div><div style="display:flex;flex-direction:column;gap:6px;overflow-y:auto;flex:1;min-height:0;">`+sorted.map(({name,count})=>{const col=COLLEAGUES.find(c=>c.name===name);if(!col)return'';return`<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;"><div class="avatar" style="background:${col.color};">${col.initials}</div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div><div style="display:flex;align-items:center;gap:5px;margin-top:2px;"><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${Math.round(count/max*100)}%;background:${col.color};"></div></div><span style="font-size:11px;color:var(--subtle);">${count}</span></div></div></div>`;}).join('')+`</div>`;
+    return;
+  }
+  if(selected){
+    const isCoach=selected==='coach';const posDef=isCoach?{label:'Treinador',descKey:'coach'}:POSITIONS.find(p=>p.id===selected);const currentCol=isCoach?coach:lineup[selected];
+    const accent=isCoach?'var(--purple)':'var(--green-mid)';const desc=DESCS[posDef.descKey]||'';const areaColor=filterArea?AREA_COLOR[filterArea]:'';
+    panel.innerHTML=`
+      <div class="pos-header${isCoach?' coach-hdr':''}"><div style="font-size:12px;font-weight:600;color:var(--text);">${posDef.label}</div></div>
+      ${desc?`<div class="pos-desc">${desc}</div>`:''}
+      ${currentCol?`<button id="btnRemSel" class="rm-btn" style="width:100%;justify-content:center;border:1px solid var(--border);border-radius:8px;padding:6px;font-size:12px;color:var(--muted);flex-shrink:0;font-family:var(--font);"><i class="ti ti-x"></i> remover ${currentCol.name}</button>`:''}
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+        <input class="search-input" id="searchInput" placeholder="Buscar..." style="flex:1;" />
+        <button id="btnFilter" class="filter-btn${filterArea?' active':''}" aria-label="Filtrar por área">
+          <i class="ti ti-filter" style="font-size:13px;"></i>
+          ${filterArea?`<span style="width:7px;height:7px;border-radius:50%;background:${areaColor};display:inline-block;flex-shrink:0;"></span>`:`<span style="font-size:11px;font-weight:500;">Área</span>`}
+        </button>
+      </div>
+      <div class="col-list" id="colList"></div>`;
+    const inp=document.getElementById('searchInput');inp.value=search;inp.addEventListener('input',function(){search=this.value;rebuildColList();});inp.focus();
+    document.getElementById('btnFilter').addEventListener('mousedown',(e)=>{e.preventDefault();dd.classList.contains('open')?closeDropdown():openDropdown(e.currentTarget);});
+    if(currentCol)document.getElementById('btnRemSel').addEventListener('mousedown',(e)=>{e.preventDefault();handleRemove(selected);});
+    rebuildColList();return;
+  }
+  const escalados=POSITIONS.filter(p=>lineup[p.id]);const total=escalados.length+(coach?1:0);const complete=isComplete();
+  if(!total){panel.innerHTML=`<div style="text-align:center;padding:2rem 1rem;color:var(--subtle);font-size:13px;line-height:1.6;">Toque em uma posição no campo para escalar um colega</div>`;return;}
+  panel.innerHTML=`<div style="font-size:12px;color:var(--muted);font-weight:500;">Escalados (${total}/12) ${complete?'✓':''}</div><div id="lineupList" style="display:flex;flex-direction:column;gap:5px;overflow-y:auto;flex:1;min-height:0;"></div>${complete?`<button id="btnEnviar" class="btn-send"><i class="ti ti-send"></i> Enviar minha seleção</button>`:''}`;
+  const ll=document.getElementById('lineupList');
+  const allItems=[...(coach?[{id:'coach',col:coach,lbl:'Treinador',color:'var(--purple)'}]:[]),...escalados.map(p=>({id:p.id,col:lineup[p.id],lbl:p.label,color:null}))];
+  allItems.forEach(({id,col,lbl,color})=>{const item=document.createElement('div');item.className='lineup-item';item.innerHTML=`<div class="avatar" style="background:${col.color};">${col.initials}</div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${col.name}</div><div style="font-size:10px;color:${color||'var(--subtle)'};">${lbl}</div></div><button class="rm-btn"><i class="ti ti-x" style="font-size:12px;"></i></button>`;item.querySelector('.rm-btn').addEventListener('mousedown',(e)=>{e.preventDefault();handleRemove(id);});ll.appendChild(item);});
+  if(complete)document.getElementById('btnEnviar').addEventListener('mousedown',(e)=>{e.preventDefault();e.stopPropagation();sendLineup();});
+}
+</script>
+</body>
+</html>
